@@ -1,8 +1,18 @@
 {
-    "canisters": {
-      "Calculator": {
-        "main": "main.mo",
-        "type": "motoko"
+  "version": 1,
+  "canisters": {
+    "Calculator": {
+      "type": "motoko",
+      "main": "src/main.mo",
+      "declarations": {
+        "output": "src/declarations"
       }
     }
-  }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env"
+}

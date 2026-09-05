@@ -1,0 +1,51 @@
+type Time = int;
+type Entry = 
+ record {
+   arg: opt float64;
+   at: Time;
+   op: text;
+   result: float64;
+ };
+type CalcResult = 
+ variant {
+   err: CalcError;
+   ok: float64;
+ };
+type CalcError = 
+ variant {
+   divisionByZero;
+   negativeSqrt;
+   nonFiniteResult;
+ };
+/// A stateful calculator canister.
+/// 
+/// The accumulator survives canister upgrades (it is a `stable var`), every
+/// mutating call is journaled into a bounded history, and operations that can
+/// fail (division by zero, square root of a negative) return a `Result`
+/// instead of trapping or silently producing NaN.
+service : {
+  /// Add `x` to the accumulator.
+  add: (x: float64) -> (float64);
+  /// Divide the accumulator by `x`. Fails with `#divisionByZero` when x == 0.
+  div: (x: float64) -> (CalcResult);
+  /// Round the accumulator down and return it as an integer.
+  floor: () -> (int);
+  /// The last `maxHistory` operations, oldest first.
+  getHistory: () -> (vec Entry) query;
+  /// Number of journaled operations currently kept.
+  historySize: () -> (nat) query;
+  /// Multiply the accumulator by `x`.
+  mul: (x: float64) -> (float64);
+  /// Raise the accumulator to the power `x`.
+  /// Fails with `#nonFiniteResult` if the result overflows or is NaN
+  /// (e.g. a negative base with a fractional exponent).
+  power: (x: float64) -> (CalcResult);
+  /// Set the accumulator back to zero. The history is kept.
+  reset: () -> ();
+  /// Current value of the accumulator.
+  see: () -> (float64) query;
+  /// Square root of the accumulator. Fails with `#negativeSqrt` when negative.
+  sqrt: () -> (CalcResult);
+  /// Subtract `x` from the accumulator.
+  sub: (x: float64) -> (float64);
+}
